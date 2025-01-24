@@ -90,7 +90,8 @@
                     cards.innerHTML = ""
                     res['trackerData'].forEach((ele) => {
                         let spendpercent = (ele.totalspending / ele.budget) * 100
-                        let remainpercent = (ele.totalremaining / ele.budget) * 100
+                        let saved=ele.budget-ele.totalspending
+                        let savedpercent = (saved/ ele.budget) * 100
                         let card = document.createElement("div")
                         card.classList.add("card")
                         let h1 = document.createElement("h2")
@@ -110,8 +111,8 @@
                         circles.appendChild(circle1)
                         let circle2 = document.createElement("div")
                         circle2.classList.add("circle")
-                        circle2.textContent = "Total Remaining"
-                        circle2.style.background = `conic-gradient(green 0% ${remainpercent}%,white ${remainpercent}% 100%)`
+                        circle2.textContent = "Total saved"
+                        circle2.style.background = `conic-gradient(green 0% ${savedpercent}%,white ${savedpercent}% 100%)`
                         circles.appendChild(circle2)
                         card.appendChild(h1)
                         card.appendChild(h2)
@@ -140,7 +141,8 @@
                     cards.innerHTML = ""
                     res['trackerData'].forEach((ele) => {
                         let spendpercent = (ele.totalspending / ele.budget) * 100
-                        let remainpercent = (ele.totalremaining / ele.budget) * 100
+                        let saved=ele.budget-ele.totalspending
+                        let savedpercent = (saved/ ele.budget) * 100
                         let card = document.createElement("div")
                         card.classList.add("card")
                         let h1 = document.createElement("h2")
@@ -160,8 +162,8 @@
                         circles.appendChild(circle1)
                         let circle2 = document.createElement("div")
                         circle2.classList.add("circle")
-                        circle2.textContent = "Total Remaining"
-                        circle2.style.background = `conic-gradient(green 0% ${remainpercent}%,white ${remainpercent}% 100%)`
+                        circle2.textContent = "Total saved"
+                        circle2.style.background = `conic-gradient(green 0% ${savedpercent}%,white ${savedpercent}% 100%)`
                         circles.appendChild(circle2)
                         card.appendChild(h1)
                         card.appendChild(h2)

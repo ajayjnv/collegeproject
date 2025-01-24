@@ -1,9 +1,12 @@
 const express = require("express")
-const mongoose = require("mongoose")
 const ejs = require("ejs")
+const mongoose=require("mongoose")
 const bcrypt = require("bcrypt")
 const dotenv = require("dotenv")
 const path = require("path")
+const jwt=require("jsonwebtoken")
+const cookieParser = require("cookie-parser")
+
 
 const PORT = 3000
 const server = express()
@@ -12,9 +15,27 @@ const startpage = path.join(__dirname, "./views/index.ejs")
 const forgotpasswordpage = path.join(__dirname, "./views/pages/forgotpassword.ejs")
 let username = ""
 
+const authToken=(req,res,next)=>{
+    const token=req.cookies.auth_token
+    if(!token){
+        res.render(startpage, { userLogged: false, route: "/login", status: "Token Not Found" });
+    }
+
+    try{
+        const decoded=jwt.verify(token,process.env.SECRET_KEY)
+        next()
+    }
+    catch(err){
+        res.clearCookie("auth_token")
+        return res.render(startpage, { userLogged: false, route: "/login", status: "Unauthorized Request" });
+    }
+
+}
+
 dotenv.config()
 server.set("view engine", "ejs")
 server.set("views", "./views")
+server.use(cookieParser())
 server.use(express.static(static_pages))
 server.use(express.json())
 server.use(express.urlencoded({ extended: true }))
@@ -80,12 +101,39 @@ server.get("/login", (req, res) => {
 server.get("/forgotpassword", (req, res) => {
     res.render(forgotpasswordpage, { password: "" })
 })
-server.get("/changepassword", (req, res) => {
+server.get("/changepassword",authToken, (req, res) => {
     res.render(startpage, { userLogged: username, route: "/changepassword" })
 })
-server.get("/changeprofile", (req, res) => {
+server.get("/changeprofile", authToken,(req, res) => {
     res.render(startpage, { userLogged: username, route: "/changeprofile" })
 })
+
+
+server.get("/home",authToken,async (req, res) => {
+    const token=req.cookies.auth_token
+    if(!token){
+        res.render(startpage, { userLogged: false, route: "/login", status: "Token Not Found" });
+    }
+    try{
+        const decoded=jwt.verify(token,process.env.SECRET_KEY)
+        res.render(startpage, { userLogged: username, route: "/home" })
+    }
+    catch(err){
+        res.clearCookie("auth-token")
+        res.render(startpage, { userLogged: false, route: "/login", status: "UnAuthorized Request" });
+    }
+    
+})
+server.get("/present",authToken, async (req, res) => {
+    res.render(startpage, { userLogged: username, route: "/present" })
+})
+server.get("/past",authToken, async (req, res) => {
+    res.render(startpage, { userLogged: username, route: "/past" })
+})
+
+
+
+
 server.post("/adduser", async (req, res) => {
     try {
         const { full_name, email, gender, password, repassword, security_question, security_answer } = req.body;
@@ -136,6 +184,11 @@ server.post("/signin", async (req, res) => {
             if (isMatch) {
                 const dummyData = await trackerModel.find({ email: userData.email, status: "Not Active" })
                 let saving = 0
+                const token=jwt.sign({email},process.env.SECRET_KEY,{expiresIn:"1hr"})
+                res.cookie("auth_token",token,{
+                    httpOnly:true,
+                    secure:process.env.NODE_ENV==="production"
+                })
                 dummyData.forEach(async (tracker) => {
                     if (tracker.totalremaining) {
                         saving = saving + tracker.totalremaining
@@ -194,7 +247,7 @@ server.post("/signin", async (req, res) => {
     }
 })
 
-server.post("/login", async (req, res) => {
+server.post("/showpassword", async (req, res) => {
     const { email, security_question, security_answer } = req.body
     try {
         const userData = await userModel.findOne({ email: email })
@@ -216,15 +269,6 @@ server.post("/login", async (req, res) => {
     }
 })
 
-server.get("/home", async (req, res) => {
-    res.render(startpage, { userLogged: username, route: "/home" })
-})
-server.get("/present", async (req, res) => {
-    res.render(startpage, { userLogged: username, route: "/present" })
-})
-server.get("/past", async (req, res) => {
-    res.render(startpage, { userLogged: username, route: "/past" })
-})
 
 server.post("/submitbudget", async (req, res) => {
     const { budget, budget_type } = req.body
@@ -272,8 +316,9 @@ server.post("/submitbudget", async (req, res) => {
 
 })
 server.get("/logout", (req, res) => {
-    res.render(startpage, { userLogged: false, route: "/login", status: "" });
+    res.clearCookie("auth_token")
     username = ""
+    res.render(startpage, { userLogged: false, route: "/login", status: "" });
 })
 
 server.post("/search", async (req, res) => {
@@ -393,6 +438,7 @@ server.post("/addtracks", async (req, res) => {
     }
 })
 
+
 server.post("/check", async (req, res) => {
     const { budget_id } = req.body
     try {
@@ -477,6 +523,7 @@ server.post("/upload", async (req, res) => {
         res.status(500).json({ message: "Server error. Please try again later." });
     }
 })
+
 server.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 })

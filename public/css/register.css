@@ -56,3 +56,10 @@
     border-radius: 25px;
     cursor: pointer;
 }
+@media  screen and (max-width:800px) {
+    .Registrationbox{
+        align-self: center;
+        margin: 20px 0px;
+
+    }
+}

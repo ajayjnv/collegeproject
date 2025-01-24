@@ -14,6 +14,9 @@ body {
     max-width: 100vw;
     min-height: 100vh;
     background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .nav-bar {
@@ -268,4 +271,30 @@ footer {
     display: flex;
     gap: 10px;
     align-items: center;
+}
+
+@media screen and (max-width:800px){
+    .nav-bar{
+        flex-direction: column;
+    }
+    .logo-box{
+        height:50%;
+        width:100%;
+        justify-content: center;
+    }
+    .links{
+        height:50%;
+        width:100%;
+    }
+    .project-details{
+        flex-direction: column;
+    }
+    .project-steps{
+        height:50%;
+        width:100%;
+    }
+    .project-desc{
+        height:50%;
+        width:100%;
+    }
 }

@@ -3,6 +3,7 @@
     width:100%;
     display: flex;
     background-color: #FAF3E0;
+    padding:2rem;
 }
 section{
     height:100%;
@@ -208,4 +209,28 @@ table{
 .circle.middle {
     position: relative;
     top: 60px;
+}
+@media screen and (max-width:1300px) {
+    .centrebox{
+        flex-direction: column;
+    }
+    section{
+        height:80%;
+        width:100%;
+    }
+    aside{
+        height:20%;
+        width:100%;
+    }
+    .two{
+        flex-direction: column;
+    }
+    .leftbox{
+        height:400px;
+        width:100%;
+    }
+    .rightbox{
+        height: 500px;
+        width: 100%;
+    }
 }
